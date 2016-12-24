@@ -1,0 +1,70 @@
+<html>
+    <script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous">
+    </script>
+
+    <h1>Hello from static file</h1>
+</html>
+
+<script type="text/javascript">
+
+    function authorizeOnTrello() {
+        return $.Deferred(def => {
+            console.log("Authenticating on Trello...");
+            Trello.authorize({
+                type: "popup",
+                scope: {read: true, write: true},
+                expiration: "never",
+                name: "schedule-board",
+                persist: false,
+                success: () => {
+                    if (Trello.authorized()){
+                        console.log("Successfully authenticated on Trello.");
+                        def.resolve(Trello.token());
+                    } else {
+                        console.log("Unable to authorize on Trello.")
+                        def.reject();
+                    }
+                },
+                error: () => {
+                    console.log("Authorization failed.");
+                    def.reject();
+                }
+            });
+        })
+        .promise();
+    }
+
+    function reportTokenToServer(token) {
+        console.log("Reporting authentication token to the server...");
+        return $.ajax({
+            type: "POST",
+            url: "/api/token",
+            data: JSON.stringify({token: token}),
+            dataType: "json",
+            contentType: "application/json"
+        });
+    }
+
+    function ensureAuthenticated(){
+        return $.getJSON("/api/authentication-status")
+            .then(response => {
+                console.log("one");
+                if (!response.authenticated){
+                    return $
+                        .getScript("https://trello.com/1/client.js?key=" + response.key)
+                        .then(authorizeOnTrello)
+                        .then(reportTokenToServer);
+                } else {
+                    return $.Deferred().resolve().promise();
+                }
+            });
+    }
+
+    $(() => {
+        ensureAuthenticated()
+            .then(() => console.log("All is good, ready to go."));
+    });
+</script>

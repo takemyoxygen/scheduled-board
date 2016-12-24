@@ -1,2 +1,3 @@
 node_modules
-server/trello-keys.json
+server/config.json
+.vscode
