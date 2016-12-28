@@ -9,34 +9,52 @@ const path = require('path');
 const port = 3000;
 
 const app = express();
-const router = express.Router();
+const publicRouter = express.Router();
+const secureRouter = express.Router();
 
-router.get('/authentication-status', (req, res) => {
+publicRouter.get('/authentication-status', (req, res) => {
   const response = req.session.token
     ? {authenticated: true}
     : {key: config.trelloKey, authenticated: false}
   res.json(response);
 });
 
-router.post('/token', (req, res) => {
+publicRouter.post('/token', (req, res) => {
   req.session.token = req.body.token;
   res.json({authenticated: true});
-})
+});
 
-router.get('/boards', (req, res) => {
+secureRouter.use((req, res, next) => {
+  console.dir(req.session);
+  if (req.session.token) {
+    next();
+  } else {
+    res.status(401).send("You are not authorized to access this resource.");
+  }
+});
+
+secureRouter.get('/boards', (req, res) => {
   const trello = new Trello(config.trelloKey, req.session.token);
-  trello.get("/1/members/me/boards", function (err, data) {
+  trello.get("/1/members/me/boards", {filter: "open"}, function (err, data) {
     if (err) {
       res.status(500).send(err);
-    }
-    else {
-      var boards = data
-        .filter(board => !board.closed)
-        .map(board => ({ name: board.name, id: board.id }));
-
+    } else {
+      const boards = data.map(_ => ({ name: _.name, id: _.id }));
       res.json(boards);
     }
   });
+});
+
+secureRouter.get('/boards/:boardId/lists', (req, res) => {
+  const trello = new Trello(config.trelloKey, req.session.token);
+  trello.get(`/1/boards/${req.params.boardId}/lists`, {filter: "open"}, (err, data) => {
+    if (err){
+      res.status(500).send(err);
+    } else {
+      const lists = data.map(_ => ({id: _.id, name: _.name}));
+      res.json(lists);
+    }
+  })
 });
 
 app.use(session(
@@ -48,7 +66,7 @@ app.use(session(
   }));
 
 app.use(bodyParser.json());
-app.use("/api", router);
+app.use("/api", publicRouter, secureRouter);
 app.use(express.static(path.join(__dirname, "static")));
 
 module.exports = {
@@ -58,4 +76,3 @@ module.exports = {
     });
   }
 };
-
