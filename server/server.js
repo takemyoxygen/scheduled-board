@@ -25,13 +25,24 @@ publicRouter.post('/token', (req, res) => {
 });
 
 secureRouter.use((req, res, next) => {
-  console.dir(req.session);
   if (req.session.token) {
     next();
   } else {
     res.status(401).send("You are not authorized to access this resource.");
   }
 });
+
+secureRouter.get('/me', (req, res) => {
+  const trello = new Trello(config.trelloKey, req.session.token);
+  trello.get("/1/members/me", (err, data) => {
+    if (err){
+      res.status(500).send(err);
+    } else {
+      const me = {fullName: data.fullName, username: data.username};
+      res.json(me);
+    }
+  })
+})
 
 secureRouter.get('/boards', (req, res) => {
   const trello = new Trello(config.trelloKey, req.session.token);
