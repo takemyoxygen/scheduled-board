@@ -4,7 +4,9 @@
   "description": "An application allowing to schedule Trello cards creation.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node index.js",
+    "build": "babel client -d build",
+    "pack": "webpack"
   },
   "author": "Uladzimir Makarau",
   "license": "MIT",
@@ -15,5 +17,13 @@
     "node-trello": "^1.1.2",
     "oauth": "^0.9.14",
     "promise": "^7.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "webpack": "^1.14.0"
   }
 }

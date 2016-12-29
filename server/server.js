@@ -39,11 +39,11 @@ secureRouter.use((req, res, next) => {
 
 secureRouter.get('/me', (req, res) => {
   Trello.me(req.session.token).complete(res);
-})
+});
 
 secureRouter.get('/boards', (req, res) => {
   Trello.myBoards(req.session.token).complete(res);
-})
+});
 
 secureRouter.get('/boards/:boardId/lists', (req, res) => {
   Trello.lists(req.session.token, req.params.boardId).complete(res);
@@ -59,7 +59,8 @@ app.use(session(
 
 app.use(bodyParser.json());
 app.use("/api", publicRouter, secureRouter);
-app.use(express.static(path.join(__dirname, "../client")));
+app.use("/build", express.static(path.join(__dirname, "../build")));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, "../client/index.html")))
 
 module.exports = {
   start: () => {
