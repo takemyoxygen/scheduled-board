@@ -59,7 +59,7 @@ app.use(session(
 
 app.use(bodyParser.json());
 app.use("/api", publicRouter, secureRouter);
-app.use(express.static(path.join(__dirname, "static")));
+app.use(express.static(path.join(__dirname, "../client")));
 
 module.exports = {
   start: () => {
