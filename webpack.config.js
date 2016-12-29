@@ -1,7 +1,18 @@
 module.exports = {
-  entry: './build/app.js',
-  output: {
-    filename: 'bundle.js',
-    path: './build'
-  }
+    entry: './client/app.jsx',
+    output: {
+        filename: 'bundle.js',
+        path: './build'
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.jsx$/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ["react", "es2015"]
+                }
+            },
+        ]
+    }
 }
