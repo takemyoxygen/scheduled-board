@@ -25,6 +25,7 @@ publicRouter.get('/authentication-status', (req, res) => {
 });
 
 publicRouter.post('/token', (req, res) => {
+  console.log("Received a token: " + req.body.token);
   req.session.token = req.body.token;
   res.json({authenticated: true});
 });
