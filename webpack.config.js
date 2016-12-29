@@ -12,7 +12,7 @@ module.exports = {
             {
                 test: /\.(jsx)|(js)$/,
                 loader: 'babel-loader',
-                exclude: /node_packages/,
+                exclude: /node_modules/,
                 query: {
                     presets: ["react", "es2015"],
                     plugins: ["transform-class-properties"]
