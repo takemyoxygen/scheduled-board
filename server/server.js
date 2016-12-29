@@ -1,10 +1,15 @@
 const http = require('http');
 const bodyParser = require('body-parser');
 const session = require('express-session')
-const Trello = require("node-trello");
 const config = require("./config")
 const express = require('express');
 const path = require('path');
+const Trello = require('./trello');
+const Promise = require('promise');
+
+Promise.prototype.complete = function(res){
+  return this.then(_ => res.json(_), _ => res.status(500).send(_));
+};
 
 const port = 3000;
 
@@ -33,39 +38,15 @@ secureRouter.use((req, res, next) => {
 });
 
 secureRouter.get('/me', (req, res) => {
-  const trello = new Trello(config.trelloKey, req.session.token);
-  trello.get("/1/members/me", (err, data) => {
-    if (err){
-      res.status(500).send(err);
-    } else {
-      const me = {fullName: data.fullName, username: data.username};
-      res.json(me);
-    }
-  })
+  Trello.me(req.session.token).complete(res);
 })
 
 secureRouter.get('/boards', (req, res) => {
-  const trello = new Trello(config.trelloKey, req.session.token);
-  trello.get("/1/members/me/boards", {filter: "open"}, function (err, data) {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      const boards = data.map(_ => ({ name: _.name, id: _.id }));
-      res.json(boards);
-    }
-  });
-});
+  Trello.myBoards(req.session.token).complete(res);
+})
 
 secureRouter.get('/boards/:boardId/lists', (req, res) => {
-  const trello = new Trello(config.trelloKey, req.session.token);
-  trello.get(`/1/boards/${req.params.boardId}/lists`, {filter: "open"}, (err, data) => {
-    if (err){
-      res.status(500).send(err);
-    } else {
-      const lists = data.map(_ => ({id: _.id, name: _.name}));
-      res.json(lists);
-    }
-  })
+  Trello.lists(req.session.token, req.params.boardId).complete(res);
 });
 
 app.use(session(

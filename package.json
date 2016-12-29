@@ -13,6 +13,7 @@
     "express": "^4.14.0",
     "express-session": "^1.14.2",
     "node-trello": "^1.1.2",
-    "oauth": "^0.9.14"
+    "oauth": "^0.9.14",
+    "promise": "^7.1.1"
   }
 }
