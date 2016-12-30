@@ -8,16 +8,24 @@ export default class User extends React.Component {
         this.state = { authenticated: false };
     }
 
+    loadUserDetails(){
+        return Auth.me().then(_ => this.setState({fullName: _.fullName, authenticated: true}));
+    }
+
     componentDidMount(){
         Auth.status().then(_ => {
-            this.state.authenticated = _.authenticated;
-            this.state.key = _.key;
+            if (_.authenticated){
+                return this.loadUserDetails();
+            } else {
+                this.setState({key: _.key})
+            }
         });
     }
 
     onLogin = () => {
         if (this.state.key){
-            Auth.authenticate(this.state.key);
+            Auth.authenticate(this.state.key)
+                .then(_ => this.loadUserDetails());
         }
     }
 

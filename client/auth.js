@@ -67,5 +67,11 @@ export default {
 
     authenticate: key => loadScript("https://trello.com/1/client.js?key=" + key)
         .then(authorizeOnTrello)
-        .then(reportTokenToServer)
+        .then(reportTokenToServer),
+
+    me: () =>
+        fetch("/api/me", {
+            credentials: "same-origin",
+        })
+        .then(_ => _.json())
 }
