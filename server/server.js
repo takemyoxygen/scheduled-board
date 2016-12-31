@@ -31,7 +31,7 @@ publicRouter.post('/token', (req, res) => {
 });
 
 secureRouter.delete('/token', (req, res) => {
-    delete req.session.token;
+    req.session.destroy();
     res.json({authenticated: false, key: config.trelloKey});
 });
 

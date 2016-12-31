@@ -37,7 +37,7 @@ export default class User extends React.Component {
 
     onLogout = () => {
         this.setState({status: "unknown"});
-        Auth.logout().then(_ => this.setState({status: "not-logged-in"}));
+        Auth.logout().then(_ => this.setState({status: "not-logged-in", key: _.key}));
     }
 
     render() {

@@ -69,10 +69,12 @@ export default {
         .then(authorizeOnTrello)
         .then(reportTokenToServer),
 
-    logout: () => fetch('/api/token', {
-        method: "DELETE",
-        credentials: "same-origin"
-    }),
+    logout: () => 
+        fetch('/api/token', {
+            method: "DELETE",
+            credentials: "same-origin"
+        })
+        .then(_ => _.json()),
 
     me: () =>
         fetch("/api/me", {
