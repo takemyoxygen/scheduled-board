@@ -1,6 +1,7 @@
 const http = require('http');
 const bodyParser = require('body-parser');
-const session = require('express-session')
+const session = require('express-session');
+var FileStore = require('session-file-store')(session);
 const config = require("./config")
 const express = require('express');
 const path = require('path');
@@ -29,6 +30,11 @@ publicRouter.post('/token', (req, res) => {
     res.json({ authenticated: true });
 });
 
+secureRouter.delete('/token', (req, res) => {
+    delete req.session.token;
+    res.json({authenticated: false, key: config.trelloKey});
+});
+
 secureRouter.use((req, res, next) => {
     if (req.session.token) {
         next();
@@ -54,7 +60,8 @@ app.use(session(
         cookie: { maxAge: 1000 * 60 * 60 },
         secret: config.sessionSecret,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        store: new FileStore()
     }));
 
 app.use(bodyParser.json());
