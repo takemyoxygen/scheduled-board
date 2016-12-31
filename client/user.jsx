@@ -1,15 +1,21 @@
 import React from 'react';
 import Auth from './auth';
 
+const Hello = (props) =>
+    <span>Hello, {props.name}</span>;
+
+const Introduce = (props) =>
+    <span>We don't know you. <a href="#" onClick={props.login}>Introduce yourself.</a></span>;
+
 export default class User extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { authenticated: false };
+        this.state = { status: "unknown" };
     }
 
     loadUserDetails(){
-        return Auth.me().then(_ => this.setState({fullName: _.fullName, authenticated: true}));
+        return Auth.me().then(_ => this.setState({fullName: _.fullName, status: "logged-in"}));
     }
 
     componentDidMount(){
@@ -17,7 +23,7 @@ export default class User extends React.Component {
             if (_.authenticated){
                 return this.loadUserDetails();
             } else {
-                this.setState({key: _.key})
+                this.setState({key: _.key, status: "not-logged-in"})
             }
         });
     }
@@ -30,8 +36,15 @@ export default class User extends React.Component {
     }
 
     render() {
-        return this.state.authenticated
-            ? (<div>Hello, {this.state.fullName}</div>)
-            : (<div><a onClick={this.onLogin}>Login</a></div>);
+        switch (this.state.status){
+            case "unknown":
+                return <span>Thinking...</span>;
+
+            case "logged-in":
+                return <Hello name={this.state.fullName} />
+                
+            case "not-logged-in":
+                return <Introduce login={this.onLogin}/>;
+        }
     }
 }
