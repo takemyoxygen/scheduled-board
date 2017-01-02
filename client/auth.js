@@ -65,7 +65,8 @@ export default {
         })
         .then(_ => _.json()),
 
-    authenticate: key => loadScript("https://trello.com/1/client.js?key=" + key)
+    authenticate: key => 
+        (window.Trello ? Promise.resolve() : loadScript("https://trello.com/1/client.js?key=" + key))
         .then(authorizeOnTrello)
         .then(reportTokenToServer),
 
