@@ -7,6 +7,7 @@ const express = require('express');
 const path = require('path');
 const Trello = require('./trello');
 const Promise = require('promise');
+const Storage = require('./storage');
 
 Promise.prototype.complete = function (res) {
     return this.then(_ => res.json(_), _ => res.status(500).send(_));
@@ -28,6 +29,10 @@ publicRouter.get('/authentication-status', (req, res) => {
 publicRouter.post('/token', (req, res) => {
     req.session.token = req.body.token;
     res.json({ authenticated: true });
+});
+
+publicRouter.get('/schedules/all', (req, res) => {
+    Storage.all().complete(res);
 });
 
 secureRouter.delete('/token', (req, res) => {
@@ -53,6 +58,10 @@ secureRouter.get('/boards', (req, res) => {
 
 secureRouter.get('/boards/:boardId/lists', (req, res) => {
     Trello.lists(req.session.token, req.params.boardId).complete(res);
+});
+
+secureRouter.get('/schedules', (req, res) => {
+    Storage.for(req.session.token).complete(res);
 });
 
 app.use(session(
