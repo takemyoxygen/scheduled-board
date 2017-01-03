@@ -31,5 +31,5 @@ module.exports = {
 
     me: token =>
         request(token, t => t.get, '1/members/me')
-            .then(_ => ({fullName: _.fullName, username: _.username}))
+            .then(_ => ({fullName: _.fullName, username: _.username, id: _.id}))
 }

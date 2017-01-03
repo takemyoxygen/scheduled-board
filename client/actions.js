@@ -1,4 +1,5 @@
 import Auth from './auth';
+import Boards from './boards';
 
 export const ActionsTypes = {
     CHECK_STATUS: "CHECK_STATUS",
@@ -7,18 +8,32 @@ export const ActionsTypes = {
     AUTHENTICATION_IN_PROGRESS: "AUTHENTICATION_IN_PROGRESS",
     LOGIN: "LOGIN",
     LOGOUT: "LOGOUT",
+
+    BOARDS_LOADED: "BOARDS_LOADED"
 }
 
 function userNotLoggedIn(appKey){
     return {type: ActionsTypes.USER_NOT_LOGGED_IN, applicationKey: appKey};
 } 
 
-function userLoggedIn(name){
-    return {type: ActionsTypes.USER_LOGGED_IN, name: name};
+function userLoggedIn(id, name){
+    return {type: ActionsTypes.USER_LOGGED_IN, id: id, name: name};
 }
 
 function authenticationInProgress(){
     return {type: ActionsTypes.AUTHENTICATION_IN_PROGRESS};
+}
+
+function boardsLoaded(boards){
+    return {type: ActionsTypes.BOARDS_LOADED, boards: boards};
+}
+
+function loadUserDetails(dispatch){
+    return Auth
+        .me()
+        .then(_ => dispatch(userLoggedIn(_.id, _.fullName)))
+        .then(Boards.load)
+        .then(_ => dispatch(boardsLoaded(_)));
 }
 
 export const Actions = {
@@ -28,7 +43,7 @@ export const Actions = {
 
         return Auth.status().then(_ => {
             if (_.authenticated){
-                Auth.me().then(user => dispatch(userLoggedIn(user.fullName)));
+                return loadUserDetails(dispatch);
             } else {
                 dispatch(userNotLoggedIn(_.key));
             }
@@ -40,8 +55,7 @@ export const Actions = {
 
         return Auth
             .authenticate(key)
-            .then(Auth.me)
-            .then(_ => dispatch(userLoggedIn(_.fullName)));
+            .then(_ => loadUserDetails(dispatch));
     },
 
     logout: () => dispatch => {
