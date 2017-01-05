@@ -8,6 +8,7 @@ const path = require('path');
 const Trello = require('./trello');
 const Promise = require('promise');
 const Storage = require('./storage');
+const Schedule = require('./schedule');
 
 Promise.prototype.complete = function (res) {
     return this.then(_ => res.json(_), _ => res.status(500).send(_));
@@ -17,7 +18,7 @@ const port = 3000;
 
 const app = express();
 const publicRouter = express.Router();
-const secureRouter = express.Router();
+
 
 publicRouter.get('/authentication-status', (req, res) => {
     const response = req.session.token
@@ -32,13 +33,10 @@ publicRouter.post('/token', (req, res) => {
 });
 
 publicRouter.get('/schedules/all', (req, res) => {
-    Storage.all().complete(res);
+    Storage.allActive().complete(res);
 });
 
-secureRouter.delete('/token', (req, res) => {
-    req.session.destroy();
-    res.json({authenticated: false, key: config.trelloKey});
-});
+const secureRouter = express.Router();
 
 secureRouter.use((req, res, next) => {
     if (req.session.token) {
@@ -46,6 +44,11 @@ secureRouter.use((req, res, next) => {
     } else {
         res.status(401).send("You are not authorized to access this resource.");
     }
+});
+
+secureRouter.delete('/token', (req, res) => {
+    req.session.destroy();
+    res.json({authenticated: false, key: config.trelloKey});
 });
 
 secureRouter.get('/me', (req, res) => {
@@ -60,9 +63,11 @@ secureRouter.get('/boards/:boardId/lists', (req, res) => {
     Trello.lists(req.session.token, req.params.boardId).complete(res);
 });
 
-secureRouter.get('/schedules', (req, res) => {
-    Storage.for(req.session.token).complete(res);
-});
+var privateRouter = express.Router();
+// TODO add middleware to check for private key int the request
+privateRouter.post('/schedules/create-cards', (req, res) => {
+    Schedule.createCards().complete(res);
+})
 
 app.use(session(
     {
@@ -74,7 +79,7 @@ app.use(session(
     }));
 
 app.use(bodyParser.json());
-app.use("/api", publicRouter, secureRouter);
+app.use("/api", publicRouter, privateRouter, secureRouter);
 app.use("/build", express.static(path.join(__dirname, "../build")));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, "../client/index.html")))
 

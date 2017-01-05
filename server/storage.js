@@ -5,15 +5,17 @@ const Promise = require('promise');
 const dataFilePath = path.join(__dirname, "schedules.json");
 
 function readSchedules(){
-    return new Promise((resolve, reject) => 
-        fs.readFile(dataFilePath, (err, data) => {
-            if (err) reject(err);
-            else resolve(JSON.parse(data));
-    }))
+    console.log("Reading saved schedules.");
+    return Promise.denodeify(fs.readFile)(dataFilePath).then(JSON.parse);
 }
 
 module.exports = {
-    all: () => readSchedules(),
+    allActive: () => readSchedules()
+        .then(schedules => schedules.filter(_ => _.status === "active"))
+        .then(schedules => {
+            console.log(`Loaded ${schedules.length} active schedules.`);
+            return schedules;
+        }),
 
     for: token => readSchedules().then(schedules => schedules.filter(_ => _.token === token))
 };
