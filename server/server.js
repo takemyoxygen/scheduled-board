@@ -1,8 +1,8 @@
 const http = require('http');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-var FileStore = require('session-file-store')(session);
-const config = require("./config")
+const FileStore = require('session-file-store')(session);
+const config = require("./config");
 const express = require('express');
 const path = require('path');
 const Trello = require('./trello');
@@ -23,7 +23,7 @@ const publicRouter = express.Router();
 publicRouter.get('/authentication-status', (req, res) => {
     const response = req.session.token
         ? { authenticated: true }
-        : { key: config.trelloKey, authenticated: false }
+        : { key: config.trelloKey, authenticated: false };
     res.json(response);
 });
 
@@ -63,11 +63,14 @@ secureRouter.get('/boards/:boardId/lists', (req, res) => {
     Trello.lists(req.session.token, req.params.boardId).complete(res);
 });
 
-var privateRouter = express.Router();
-// TODO add middleware to check for private key int the request
+const privateRouter = express.Router();
 privateRouter.post('/schedules/create-cards', (req, res) => {
-    Schedule.createCards().complete(res);
-})
+    if (req.header("secret-code") === config.secretAuthCode){
+        Schedule.createCards().complete(res);
+    } else {
+        res.status(401).send("You are not authorized to access this resource.");
+    }
+});
 
 app.use(session(
     {
@@ -81,7 +84,7 @@ app.use(session(
 app.use(bodyParser.json());
 app.use("/api", publicRouter, privateRouter, secureRouter);
 app.use("/build", express.static(path.join(__dirname, "../build")));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, "../client/index.html")))
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, "../client/index.html")));
 
 module.exports = {
     start: () => {

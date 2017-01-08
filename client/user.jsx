@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux';
-import Auth from './auth';
 import { Actions } from './actions';
 
 class User extends React.Component {
