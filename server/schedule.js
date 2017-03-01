@@ -12,9 +12,18 @@ function sequentially(xs, f) {
         Promise.resolve([]));
 }
 
+const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function shouldBeCreatedToday(schedule){
+    const today = new Date();
+    const dayOfWeek = daysOfWeek[today.getDay()];
+    return schedule.schedule.days.indexOf(dayOfWeek) >= 0;
+}
+
 module.exports = {
     createCards: () => Storage
         .allActive()
+        .then(schedules => schedules.filter(shouldBeCreatedToday))
         .then(schedules => sequentially(schedules, _ => Trello.createCard(_.token, _.listId, _.text)))
         .then(_ => ({ count: _.length }))
 };
