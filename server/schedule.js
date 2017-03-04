@@ -15,9 +15,34 @@ function sequentially(xs, f) {
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function shouldBeCreatedToday(schedule){
+
+    function convertDate(dateRepresentation){
+        if (dateRepresentation instanceof Date){
+            return dateRepresentation;
+        } else if (typeof dateRepresentation === "string"){
+            return new Date(dateRepresentation);
+        } else {
+            return null;
+        }
+    }
+
+    function startsNotLaterThan(date){
+        const startDate = convertDate(schedule.schedule.startDate);
+        return !startDate || startDate <= date;
+    }
+
+    function endsNotEarlierThan(date){
+        const endDate = convertDate(schedule.schedule.endDate);
+        return !endDate || endDate >= date;
+    }
+
+    function activeOnDayOfWeek(date){
+        const dayOfWeek = daysOfWeek[date.getDay()];
+        return schedule.schedule.days.indexOf(dayOfWeek) >= 0;
+    }
+
     const today = new Date();
-    const dayOfWeek = daysOfWeek[today.getDay()];
-    return schedule.schedule.days.indexOf(dayOfWeek) >= 0;
+    return startsNotLaterThan(today) && activeOnDayOfWeek(today) && endsNotEarlierThan(today);
 }
 
 module.exports = {

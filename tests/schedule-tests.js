@@ -70,4 +70,20 @@ describe('Schedule', () =>{
         setup(sandbox, [schedule], [], daysOfWeek["Fri"]);
         return Schedule.createCards();
     }));
+
+    it("createCards should create cards only after scheduled start date", sandboxed(sandbox => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const schedule = testSchedule({days: Object.keys(daysOfWeek), startDate: tomorrow});
+        setup(sandbox, [schedule], []);
+        return Schedule.createCards();
+    }));
+
+    it("createCards should create cards only before scheduled end date", sandboxed(sandbox => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const schedule = testSchedule({days: Object.keys(daysOfWeek), endDate: yesterday});
+        setup(sandbox, [schedule], []);
+        return Schedule.createCards();
+    }))
 });
