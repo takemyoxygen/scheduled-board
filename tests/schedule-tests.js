@@ -39,20 +39,20 @@ function testSchedule(pattern){
     return {token: "test-token", listId: "test list ID", text: "some text on a card.", schedule: pattern};
 }
 
-function setup(sandbox, all, cardsToCreate, today){
+function setup(sandbox, card, shouldBeCreated, today){
     if (today){
         sandbox.useFakeTimers(today.getTime())
     }
 
-    sandbox.stub(Storage, "allActiveScheduledCards").returns(Promise.resolve(all));
+    sandbox.stub(Storage, "allActiveScheduledCards").returns(Promise.resolve([card]));
 
-    if (cardsToCreate.length > 0){
-        cardsToCreate.forEach(scheduledCard => sandbox
+    if (shouldBeCreated){
+        sandbox
             .mock(Trello)
             .expects("createCard")
-            .withArgs(scheduledCard.token, scheduledCard.listId, scheduledCard.text)
+            .withArgs(card.token, card.listId, card.text)
             .returns(Promise.resolve())
-            .once());
+            .once();
     } else {
         sandbox.mock(Trello).expects("createCard").never();
     }
@@ -61,13 +61,13 @@ function setup(sandbox, all, cardsToCreate, today){
 describe('Schedule', () =>{
     it("createCards should call Trello API", sandboxed(sandbox => {
         const card = testSchedule({days: Object.keys(daysOfWeek)});
-        setup(sandbox, [card], [card]);
+        setup(sandbox, card, true);
         return Schedule.createCards();
     }));
 
     it("createCards should create cards for schedules with matching day of the week", sandboxed(sandbox => {
         const card = testSchedule({days: ["Mon", "Tue", "Wed"]});
-        setup(sandbox, [card], [], daysOfWeek["Fri"]);
+        setup(sandbox, card, false, daysOfWeek["Fri"]);
         return Schedule.createCards();
     }));
 
@@ -75,7 +75,7 @@ describe('Schedule', () =>{
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const card = testSchedule({days: Object.keys(daysOfWeek), startDate: tomorrow});
-        setup(sandbox, [card], []);
+        setup(sandbox, card, false);
         return Schedule.createCards();
     }));
 
@@ -83,7 +83,7 @@ describe('Schedule', () =>{
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const card = testSchedule({days: Object.keys(daysOfWeek), endDate: yesterday});
-        setup(sandbox, [card], []);
+        setup(sandbox, card, false);
         return Schedule.createCards();
     }))
 });
