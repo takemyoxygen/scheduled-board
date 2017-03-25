@@ -1,0 +1,27 @@
+[
+    {
+        "token": "03ef91c871b7da2b3b8e4d8b5a4d3721f346e2f3c7423c8d96c2a23a9c1882a9",
+        "boardId": "5478dae72fceaf78776089fd",
+        "listId": "554b1bd41114f4f7863a5861",
+        "text": "test task",
+        "status": "active",
+        "schedule": {
+            "startDate": "2017-01-01",
+            "endDate": "2020-01-01",
+            "pattern": "weekly",
+            "days": [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ]
+        }
+    },
+
+    {
+        "token": "some-token",
+        "boardId": "some-board-id",
+        "listId": "some-list-id",
+        "text": "test task",
+        "status": "pause",
+        "schedule": {
+            "pattern": "weekly",
+            "days": [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ]
+        }
+    }
+]

@@ -6,7 +6,7 @@ module.exports = {
     run: () => {
         const config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json")));
         request.post({
-                url: config.host + "/api/schedules/create-cards",
+                url: config.host + "/api/scheduled-cards/create",
                 headers: {
                     "secret-code": config.secretAuthCode
                 }

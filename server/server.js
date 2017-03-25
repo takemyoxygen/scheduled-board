@@ -32,8 +32,8 @@ publicRouter.post('/token', (req, res) => {
     res.json({ authenticated: true });
 });
 
-publicRouter.get('/schedules/all', (req, res) => {
-    Storage.allActive().complete(res);
+publicRouter.get('/scheduled-cards/all', (req, res) => {
+    Storage.allActiveScheduledCards().complete(res);
 });
 
 const secureRouter = express.Router();
@@ -64,7 +64,7 @@ secureRouter.get('/boards/:boardId/lists', (req, res) => {
 });
 
 const privateRouter = express.Router();
-privateRouter.post('/schedules/create-cards', (req, res) => {
+privateRouter.post('/scheduled-cards/create', (req, res) => {
     if (req.header("secret-code") === config.secretAuthCode){
         Schedule.createCards().complete(res);
     } else {

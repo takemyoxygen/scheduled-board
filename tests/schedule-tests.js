@@ -39,18 +39,18 @@ function testSchedule(pattern){
     return {token: "test-token", listId: "test list ID", text: "some text on a card.", schedule: pattern};
 }
 
-function setup(sandbox, all, toCreate, today){
+function setup(sandbox, all, cardsToCreate, today){
     if (today){
         sandbox.useFakeTimers(today.getTime())
     }
 
-    sandbox.stub(Storage, "allActive").returns(Promise.resolve(all));
+    sandbox.stub(Storage, "allActiveScheduledCards").returns(Promise.resolve(all));
 
-    if (toCreate.length > 0){
-        toCreate.forEach(schedule => sandbox
+    if (cardsToCreate.length > 0){
+        cardsToCreate.forEach(scheduledCard => sandbox
             .mock(Trello)
             .expects("createCard")
-            .withArgs(schedule.token, schedule.listId, schedule.text)
+            .withArgs(scheduledCard.token, scheduledCard.listId, scheduledCard.text)
             .returns(Promise.resolve())
             .once());
     } else {
@@ -60,30 +60,30 @@ function setup(sandbox, all, toCreate, today){
 
 describe('Schedule', () =>{
     it("createCards should call Trello API", sandboxed(sandbox => {
-        const schedule = testSchedule({days: Object.keys(daysOfWeek)});
-        setup(sandbox, [schedule], [schedule]);
+        const card = testSchedule({days: Object.keys(daysOfWeek)});
+        setup(sandbox, [card], [card]);
         return Schedule.createCards();
     }));
 
     it("createCards should create cards for schedules with matching day of the week", sandboxed(sandbox => {
-        const schedule = testSchedule({days: ["Mon", "Tue", "Wed"]});
-        setup(sandbox, [schedule], [], daysOfWeek["Fri"]);
+        const card = testSchedule({days: ["Mon", "Tue", "Wed"]});
+        setup(sandbox, [card], [], daysOfWeek["Fri"]);
         return Schedule.createCards();
     }));
 
     it("createCards should create cards only after scheduled start date", sandboxed(sandbox => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const schedule = testSchedule({days: Object.keys(daysOfWeek), startDate: tomorrow});
-        setup(sandbox, [schedule], []);
+        const card = testSchedule({days: Object.keys(daysOfWeek), startDate: tomorrow});
+        setup(sandbox, [card], []);
         return Schedule.createCards();
     }));
 
     it("createCards should create cards only before scheduled end date", sandboxed(sandbox => {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const schedule = testSchedule({days: Object.keys(daysOfWeek), endDate: yesterday});
-        setup(sandbox, [schedule], []);
+        const card = testSchedule({days: Object.keys(daysOfWeek), endDate: yesterday});
+        setup(sandbox, [card], []);
         return Schedule.createCards();
     }))
 });

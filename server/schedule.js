@@ -47,8 +47,8 @@ function shouldBeCreatedToday(schedule){
 
 module.exports = {
     createCards: () => Storage
-        .allActive()
-        .then(schedules => schedules.filter(shouldBeCreatedToday))
-        .then(schedules => sequentially(schedules, _ => Trello.createCard(_.token, _.listId, _.text)))
+        .allActiveScheduledCards()
+        .then(cards => cards.filter(shouldBeCreatedToday))
+        .then(cards => sequentially(cards, _ => Trello.createCard(_.token, _.listId, _.text)))
         .then(_ => ({ count: _.length }))
 };
