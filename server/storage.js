@@ -1,19 +1,34 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('promise');
+const config = require('./config');
+const MongoClient = require('mongodb').MongoClient;
 
-const dataFilePath = path.join(__dirname, "scheduled-cards.json");
+function connect(){
+    return Promise.denodeify(MongoClient.connect)(config.mongoUrl);
+}
 
-function readSchedules(){
-    console.log(`Reading saved scheduled cards from ${dataFilePath}`);
-    return Promise.denodeify(fs.readFile)(dataFilePath).then(JSON.parse);
+function query(db){
+    const cursor = db.collection("scheduled_cards").find({status: 'active'});
+    return Promise
+        .denodeify(cursor.toArray)
+        .call(cursor)
+        .then(
+            cards => {
+                db.close();
+                return cards;
+            },
+            err => {
+                db.close();
+                throw err;
+            });
+}
+
+function log(cards){
+    console.log(`Loaded ${cards.length} active scheduled cards.`);
+    return cards;
 }
 
 module.exports = {
-    allActiveScheduledCards: () => readSchedules()
-        .then(cards => cards.filter(_ => _.status === "active"))
-        .then(cards => {
-            console.log(`Loaded ${cards.length} active scheduled cards.`);
-            return cards;
-        })
+    allActiveScheduledCards: () => connect().then(query).then(log)
 };
