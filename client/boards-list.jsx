@@ -1,13 +1,20 @@
-import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import * as Auth from './auth';
+import * as Boards from './boards';
 
-const BoardsList = ({boards}) => {
-    const items = boards ? boards.map(_ => <li key={_.id}>{_.name}</li>) : null;
-    return <ul>{items}</ul>;
+export default class BoardsList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {boards: []};
+    }
+
+    componentDidMount() {
+        Auth.currentUser.subscribe(_ =>
+            Boards.load().then(boards => this.setState({boards})));
+    }
+
+    render(){
+        const items = this.state.boards.map(_ => <li key={_.id}>{_.name}</li>);
+        return <ul>{items}</ul>;
+    }
 }
-
-BoardsList.propTypes = {
-    boards: PropTypes.array
-};
-
-export default connect(_ => _)(BoardsList)

@@ -1,6 +1,3 @@
-const Boards = {
-    load: () => fetch('/api/boards', {credentials: "same-origin"})
-        .then(_ => _.json())
+export function load(){
+    return fetch('/api/boards', {credentials: "same-origin"}).then(_ => _.json());
 }
-
-export default Boards

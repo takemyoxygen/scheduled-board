@@ -1,47 +1,27 @@
-import React, { PropTypes } from 'react'
-import { connect } from 'react-redux';
-import { Actions } from './actions';
+import React from 'react'
+import * as Auth from './auth';
 
-class User extends React.Component {
+export default class User extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.state = {status: 'in-progress'};
+    }
 
     componentDidMount(){
-        this.props.requestUserStatus();
+        Auth.login().then(user => this.setState({name: user.fullName, status: 'logged-in'}));
     }
-    
+
     render(){
-        switch (this.props.status){
+        switch (this.state.status){
             case "in-progress":
                 return <span>Thinking...</span>;
 
             case "logged-in":
-                return <span>Hello, {this.props.name} <a href="#" onClick={this.props.logout}>Logout</a></span>;
-
-            case "not-logged-in":
-                return (
-                    <span>
-                        We don't know you.
-                        <a href="#" onClick={() => this.props.login(this.props.appKey)}>Introduce yourself.</a>
-                    </span>
-                );
+                return <span>Hello, {this.state.name}</span>;
 
             default:
                 return null;
         }
     }
 }
-
-User.propTypes = {
-    requestUserStatus: PropTypes.func.isRequired,
-    status: PropTypes.string,
-    name: PropTypes.string,
-    login: PropTypes.func.isRequired,
-    logout: PropTypes.func.isRequired
-};
-
-export default connect(
-    state => ({status: state.user.status, name: state.user.name, appKey: state.applicationKey}),
-    dispatch => ({
-        requestUserStatus: () => dispatch(Actions.checkStatus()),
-        login: key => dispatch(Actions.login(key)), 
-        logout: () => dispatch(Actions.logout())})
-) (User)

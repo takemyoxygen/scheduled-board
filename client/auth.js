@@ -1,3 +1,5 @@
+import * as ReactiveValue from './reactive-value';
+
 function loadScript(url) {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -57,29 +59,29 @@ function reportTokenToServer(token) {
     });
 }
 
-export default {
+function status() {
+    return fetch("/api/authentication-status", {credentials: "same-origin"}).then(_ => _.json())
+}
 
-    status: () => 
-        fetch("/api/authentication-status", {
-            credentials: "same-origin",
-        })
-        .then(_ => _.json()),
+function me() {
+    return fetch("/api/me", {credentials: "same-origin"}).then(_ => _.json())
+}
 
-    authenticate: key => 
-        (window.Trello ? Promise.resolve() : loadScript("https://trello.com/1/client.js?key=" + key))
+function authenticate(key){
+    return (window.Trello ? Promise.resolve() : loadScript("https://trello.com/1/client.js?key=" + key))
         .then(authorizeOnTrello)
-        .then(reportTokenToServer),
+        .then(reportTokenToServer);
+}
 
-    logout: () => 
-        fetch('/api/token', {
-            method: "DELETE",
-            credentials: "same-origin"
-        })
-        .then(_ => _.json()),
+export const currentUser = ReactiveValue.empty();
 
-    me: () =>
-        fetch("/api/me", {
-            credentials: "same-origin",
-        })
-        .then(_ => _.json())
+export function login() {
+    return status()
+        .then(status => status.authenticated ? Promise.resolve() : authenticate(status.key))
+        .then(me)
+        .then(user => {
+            console.dir('The user', user);
+            currentUser.set(user);
+            return user;
+        });
 }
