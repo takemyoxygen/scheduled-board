@@ -1,7 +1,7 @@
 import * as ReactiveValue from './reactive-value';
 
 function loadScript(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = url;

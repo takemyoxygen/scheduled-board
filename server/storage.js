@@ -8,20 +8,22 @@ function connect(){
     return Promise.denodeify(MongoClient.connect)(config.mongoUrl);
 }
 
-function query(db){
-    const cursor = db.collection("scheduled_cards").find({status: 'active'});
-    return Promise
-        .denodeify(cursor.toArray)
-        .call(cursor)
-        .then(
-            cards => {
-                db.close();
-                return cards;
-            },
-            err => {
-                db.close();
-                throw err;
-            });
+function query(criteria){
+    return db => {
+        const cursor = db.collection("scheduled_cards").find(criteria);
+        return Promise
+            .denodeify(cursor.toArray)
+            .call(cursor)
+            .then(
+                cards => {
+                    db.close();
+                    return cards;
+                },
+                err => {
+                    db.close();
+                    throw err;
+                });
+    }
 }
 
 function log(cards){
@@ -30,5 +32,7 @@ function log(cards){
 }
 
 module.exports = {
-    allActiveScheduledCards: () => connect().then(query).then(log)
+    allActiveScheduledCards: () => connect().then(query({status: 'active'})).then(log),
+
+    myScheduledCards: token => connect().then(query({token})).then(log)
 };

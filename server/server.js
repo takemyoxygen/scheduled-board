@@ -32,10 +32,6 @@ publicRouter.post('/token', (req, res) => {
     res.json({ authenticated: true });
 });
 
-publicRouter.get('/scheduled-cards/all', (req, res) => {
-    Storage.allActiveScheduledCards().complete(res);
-});
-
 const secureRouter = express.Router();
 
 secureRouter.use((req, res, next) => {
@@ -63,6 +59,10 @@ secureRouter.get('/boards/:boardId/lists', (req, res) => {
     Trello.lists(req.session.token, req.params.boardId).complete(res);
 });
 
+secureRouter.get('/scheduled-cards/mine', (req, res) => {
+    Storage.myScheduledCards(req.session.token).complete(res);
+});
+
 const privateRouter = express.Router();
 privateRouter.post('/scheduled-cards/create', (req, res) => {
     if (req.header("secret-code") === config.secretAuthCode){
@@ -72,6 +72,7 @@ privateRouter.post('/scheduled-cards/create', (req, res) => {
     }
 });
 
+// TODO move to mongo
 app.use(session(
     {
         cookie: { maxAge: 1000 * 60 * 60 },
