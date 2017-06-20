@@ -1,8 +1,8 @@
 import React from 'react';
-import User from './user';
-import BoardsList from './boards-list';
-import ScheduledCardsList from './scheduled-cards-list';
-import ScheduledCardEditor from './scheduled-card-editor';
+import User from './user/user';
+import BoardsList from './boards/boards-list';
+import ScheduledCardsList from './scheduled-cards/scheduled-cards-list';
+import ScheduledCardEditor from './scheduled-cards/scheduled-card-editor';
 
 const App = () => (
     <div>

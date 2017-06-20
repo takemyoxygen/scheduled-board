@@ -1,4 +1,4 @@
-import * as ReactiveValue from './reactive-value';
+import * as ReactiveValue from '../common/reactive-value';
 
 function loadScript(url) {
     return new Promise(resolve => {

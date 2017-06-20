@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Auth from './auth';
+import * as Auth from '../user/auth';
 import * as Boards from './boards';
 
 export default class BoardsList extends React.Component {
