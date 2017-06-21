@@ -6,7 +6,6 @@ const Promise = require('promise');
 const Schedule = require('./../server/schedule');
 const extend = require('util')._extend;
 
-
 const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 
@@ -69,52 +68,50 @@ function setup(sandbox, card, shouldBeCreated, currentDate){
     }
 }
 
-describe('Schedule', () =>{
-    it("createCards should call Trello API", sandboxed(sandbox => {
-        setup(sandbox, testCard(), true);
-        return Schedule.createCards();
-    }));
+test("createCards should call Trello API", sandboxed(sandbox => {
+    setup(sandbox, testCard(), true);
+    return Schedule.createCards();
+}));
 
-    it("createCards should create cards for schedules with matching day of the week", sandboxed(sandbox => {
-        const card = testCard({days: ["Mon", "Tue", "Wed"]});
-        setup(sandbox, card, false, daysOfWeek["Fri"]);
-        return Schedule.createCards();
-    }));
+test("createCards should create cards for schedules with matching day of the week", sandboxed(sandbox => {
+    const card = testCard({days: ["Mon", "Tue", "Wed"]});
+    setup(sandbox, card, false, daysOfWeek["Fri"]);
+    return Schedule.createCards();
+}));
 
-    it("createCards should create cards only after scheduled start date", sandboxed(sandbox => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const card = testCard({startDate: tomorrow});
-        setup(sandbox, card, false);
-        return Schedule.createCards();
-    }));
+test("createCards should create cards only after scheduled start date", sandboxed(sandbox => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const card = testCard({startDate: tomorrow});
+    setup(sandbox, card, false);
+    return Schedule.createCards();
+}));
 
-    it("createCards should create cards only before scheduled end date", sandboxed(sandbox => {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const card = testCard({endDate: yesterday});
-        setup(sandbox, card, false);
-        return Schedule.createCards();
-    }));
+test("createCards should create cards only before scheduled end date", sandboxed(sandbox => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const card = testCard({endDate: yesterday});
+    setup(sandbox, card, false);
+    return Schedule.createCards();
+}));
 
-    it("createCards should not create cards if week does not match configured frequency", sandboxed(sandbox => {
-        const weekAgo = new Date(today.valueOf());
-        weekAgo.setDate(weekAgo.getDate() - 7);
+test("createCards should not create cards if week does not match configured frequency", sandboxed(sandbox => {
+    const weekAgo = new Date(today.valueOf());
+    weekAgo.setDate(weekAgo.getDate() - 7);
 
-        setup(sandbox, testCard({startDate: weekAgo, frequency: 2}), false);
-        return Schedule.createCards();
-    }));
+    setup(sandbox, testCard({startDate: weekAgo, frequency: 2}), false);
+    return Schedule.createCards();
+}));
 
-    it("createCards should create for the first week regardless of frequency", sandboxed(sandbox => {
-        setup(sandbox, testCard({frequency: 5}), true);
-        return Schedule.createCards();
-    }));
+test("createCards should create for the first week regardless of frequency", sandboxed(sandbox => {
+    setup(sandbox, testCard({frequency: 5}), true);
+    return Schedule.createCards();
+}));
 
-    it("createCards should create cards if week matches configured frequency", sandboxed(sandbox => {
-        const twoWeeksAgo = new Date(today.valueOf());
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+test("createCards should create cards if week matches configured frequency", sandboxed(sandbox => {
+    const twoWeeksAgo = new Date(today.valueOf());
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-        setup(sandbox, testCard({startDate: twoWeeksAgo, frequency: 2}), true);
-        return Schedule.createCards();
-    }));
-});
+    setup(sandbox, testCard({startDate: twoWeeksAgo, frequency: 2}), true);
+    return Schedule.createCards();
+}));

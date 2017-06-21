@@ -1,0 +1,7 @@
+{
+    "verbose": true,
+    "testEnvironment": "node",
+    "testMatch": [
+        "**/tests/*tests.js?(x)"
+    ]
+}
